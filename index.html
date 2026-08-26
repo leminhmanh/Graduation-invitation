@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lễ Tốt Nghiệp | Lê Minh Mạnh</title>
+    
+    <!-- Fonts: Cormorant Garamond (Serif/Premium) & Montserrat (Sans-serif/Modern) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#FAF8F1', 
+                        surface: '#EBF1E6',    
+                        text_main: '#4A5568',  
+                        text_muted: '#718096', 
+                        
+                        accent_red: '#E85D4E',    
+                        accent_green: '#3AA76D',  
+                        accent_orange: '#F2A93B', 
+                        accent_blue: '#5B7C99',   
+                        
+                        timeline_bg: '#FAF8F1',
+                        timeline_line: '#3AA76D',
+                    },
+                    fontFamily: {
+                        serif: ['"Cormorant Garamond"', 'serif'],
+                        sans: ['"Montserrat"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- React, ReactDOM, Babel, Framer Motion, Canvas Confetti -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/framer-motion@10.12.16/dist/framer-motion.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body { margin: 0; padding: 0; overflow-x: hidden; background-color: #FAF8F1; color: #4A5568; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #FAF8F1; }
+        ::-webkit-scrollbar-thumb { background: #3AA76D; border-radius: 10px; }
+        html { scroll-behavior: smooth; }
+        @media (hover: hover) and (pointer: fine) { body, a, button, input, textarea, select { cursor: none !important; } }
+        
+        .glass-panel { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(12px); border: 1px solid rgba(0, 0, 0, 0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
+        .text-glow { text-shadow: 1px 1px 0px rgba(0,0,0,0.05); }
+        .tooltip-enter { animation: fadeIn 0.2s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .line-clamp-4 { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+    </style>
+</head>
+<body class="font-sans antialiased selection:bg-accent_green selection:text-white">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+        const { motion, AnimatePresence, useScroll, useTransform, useInView } = window.Motion;
+
+        // ==========================================
+        // CẤU HÌNH THÔNG TIN SỰ KIỆN & LIÊN HỆ
+        // ==========================================
+        const siteConfig = {
+            name: "LÊ MINH MẠNH",
+            graduationYear: "2026",
+            major: "Kỹ sư Kỹ thuật điện (Tin học Công nghiệp)",
+            school: "Khoa Khoa học Công nghệ Tiên tiến (FAST)\nTrường Đại học Bách khoa – Đại học Đà Nẵng",
+            graduationDate: "2026-08-29",
+            graduationTime: "10:00:00",
+            displayDate: "29 . 08 . 2026",
+            time: "10:00 Sáng",
+            venue: "Hội trường Khu F",
+            mapUrl: "https://maps.app.goo.gl/6X1oQKxDeTfrwcKbA",
+            musicUrl: "nhac.mp3", 
+            heroImage: "./D350CCDB-8669-44C6-88B5-DE632DF3D93E.PNG",
+            galleryImages: [
+                "./anh1.JPG",
+                "./anh2.JPG",
+                "./anh3.JPG",
+                "./anh4.JPG",
+                "./anh5.JPG",
+                "./anh6.JPG"
+            ],
+            contact: {
+                phone: "0868694403", 
+                facebookUrl: "https://www.facebook.com/minhmanh.le.33" 
+            },
+            story: {
+                title: "Một hành trình, một dấu mốc.",
+                paragraphs: [
+                    "Có những ngày tưởng như rất bình thường, nhưng khi nhìn lại mới nhận ra mình đã đi được một chặng đường thật dài.",
+                    "Những buổi học, những đêm thức khuya, những lần lo lắng, những người đã đồng hành...",
+                    "Tất cả đã tạo nên ngày hôm nay."
+                ]
+            },
+            thankYou: {
+                title: "Lời Cảm Ơn",
+                highlight: "Tấm bằng hôm nay mang tên con, nhưng hành trình để có được nó chưa bao giờ là của riêng con.",
+                paragraphs: [
+                    "Con xin cảm ơn ba mẹ vì những hy sinh thầm lặng.",
+                    "Em xin cảm ơn Thầy Cô vì đã tận tâm dìu dắt.",
+                    "Và cảm ơn những người đã xuất hiện, đồng hành và để lại những kỷ niệm đẹp trong những năm tháng thanh xuân."
+                ]
+            }
+        };
+
+        const dbConfig = { 
+            supabaseUrl: "https://myzickwzqurxvahvtqvl.supabase.co", 
+            supabaseAnonKey: "sb_publishable_0eEg4o5iquiVv7YXe0EE8g_fyO__GOi", 
+            tableName: "wishes" 
+        };
+
+        /* ------------------------------------------------------------------
+           CÁC COMPONENT PHỤ TRỢ & ICON ĐỘNG (BÊN NGOÀI & BÊN TRONG)
+           ------------------------------------------------------------------ */
+        function OpeningFloatingIcons() {
+            const icons = [
+                { top: "15%", left: "10%", size: 32, color: "#E85D4E", delay: 0, duration: 4, type: "cap" },
+                { top: "25%", right: "12%", size: 28, color: "#3AA76D", delay: 1, duration: 5, type: "star" },
+                { bottom: "20%", left: "15%", size: 30, color: "#F2A93B", delay: 2, duration: 4.5, type: "scroll" },
+                { bottom: "25%", right: "15%", size: 26, color: "#5B7C99", delay: 0.5, duration: 6, type: "sparkle" },
+                { top: "60%", left: "8%", size: 24, color: "#E85D4E", delay: 1.5, duration: 5.5, type: "star" },
+                { top: "40%", right: "8%", size: 30, color: "#3AA76D", delay: 0.8, duration: 4, type: "cap" }
+            ];
+
+            return (
+                <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
+                    {icons.map((item, idx) => (
+                        <motion.div
+                            key={idx}
+                            style={{ top: item.top, left: item.left, right: item.right, bottom: item.bottom }}
+                            className="absolute"
+                            initial={{ y: 0, opacity: 0.7, rotate: 0 }}
+                            animate={{ y: [-15, 15, -15], rotate: [-10, 10, -10], opacity: [0.5, 1, 0.5] }}
+                            transition={{ duration: item.duration, repeat: Infinity, ease: "easeInOut", delay: item.delay }}
+                        >
+                            {item.type === 'cap' && <svg width={item.size} height={item.size} viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>}
+                            {item.type === 'star' && <svg width={item.size} height={item.size} viewBox="0 0 24 24" fill={item.color} stroke={item.color} strokeWidth="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>}
+                            {item.type === 'scroll' && <svg width={item.size} height={item.size} viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="2"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2z"></path><line x1="7" y1="9" x2="17" y2="9"></line><line x1="7" y1="13" x2="13" y2="13"></line></svg>}
+                            {item.type === 'sparkle' && <svg width={item.size} height={item.size} viewBox="0 0 24 24" fill={item.color}><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"></path></svg>}
+                        </motion.div>
+                    ))}
+                </div>
+            );
+        }
+
+        function InsideFloatingIcons() {
+            const icons = [
+                { top: "8%", left: "5%", size: 28, color: "#E85D4E", duration: 6, type: "cap" },
+                { top: "18%", right: "6%", size: 24, color: "#3AA76D", duration: 5, type: "star" },
+                { top: "35%", left: "3%", size: 30, color: "#F2A93B", duration: 7, type: "scroll" },
+                { top: "52%", right: "4%", size: 26, color: "#5B7C99", duration: 4.5, type: "sparkle" },
+                { top: "70%", left: "7%", size: 28, color: "#3AA76D", duration: 5.5, type: "cap" },
+                { top: "85%", right: "5%", size: 32, color: "#E85D4E", duration: 6.5, type: "star" }
+            ];
+
+            return (
+                <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+                    {icons.map((item, idx) => (
+                        <motion.div
+                            key={idx} style={{ top: item.top, left: item.left, right: item.right }} className="absolute opacity-30"
+                            animate={{ y: [-20, 20, -20], rotate: [-15, 15, -15] }}
+                            transition={{ duration: item.duration, repeat: Infinity, ease: "easeInOut" }}
+                        >
+                            {item.type === 'cap' && <svg width={item.size} height={item.size} viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>}
+                            {item.type === 'star' && <svg width={item.size} height={item.size} viewBox="0 0 24 24" fill={item.color} stroke={item.color} strokeWidth="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>}
+                            {item.type === 'scroll' && <svg width={item.size} height={item.size} viewBox="0 0 24 24" fill="none" stroke={item.color} strokeWidth="2"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2z"></path><line x1="7" y1="9" x2="17" y2="9"></line><line x1="7" y1="13" x2="13" y2="13"></line></svg>}
+                            {item.type === 'sparkle' && <svg width={item.size} height={item.size} viewBox="0 0 24 24" fill={item.color}><path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"></path></svg>}
+                        </motion.div>
+                    ))}
+                </div>
+            );
+        }
+
+        function ParticleBackground({ intensity = 1 }) {
+            const canvasRef = useRef(null);
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                let animationFrameId;
+                let particles = [];
+                const colors = ['#E85D4E', '#3AA76D', '#F2A93B', '#5B7C99'];
+                const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+                window.addEventListener('resize', resize);
+                resize();
+                const isMobile = window.innerWidth < 768;
+                const particleCount = isMobile ? 20 * intensity : 40 * intensity;
+                for (let i = 0; i < particleCount; i++) {
+                    particles.push({
+                        x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+                        radius: Math.random() * 3 + 1, vx: (Math.random() - 0.5) * 0.3,
+                        vy: (Math.random() - 0.5) * 0.3 - 0.1, alpha: Math.random(), blinkSpeed: Math.random() * 0.02 + 0.005,
+                        color: colors[Math.floor(Math.random() * colors.length)]
+                    });
+                }
+                const render = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    particles.forEach(p => {
+                        p.x += p.vx; p.y += p.vy; p.alpha += p.blinkSpeed;
+                        if (p.alpha >= 1 || p.alpha <= 0) p.blinkSpeed = -p.blinkSpeed;
+                        if (p.y < 0) p.y = canvas.height; if (p.x < 0) p.x = canvas.width; if (p.x > canvas.width) p.x = 0;
+                        ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                        ctx.fillStyle = p.color;
+                        ctx.globalAlpha = Math.abs(p.alpha) * 0.5;
+                        ctx.fill();
+                        ctx.globalAlpha = 1;
+                    });
+                    animationFrameId = requestAnimationFrame(render);
+                };
+                render();
+                return () => { window.removeEventListener('resize', resize); cancelAnimationFrame(animationFrameId); };
+            }, [intensity]);
+            return <canvas ref={canvasRef} className="fixed inset-0 z-0 pointer-events-none opacity-60" />;
+        }
+
+        function CustomCursor() {
+            const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+            const [hoverState, setHoverState] = useState('');
+            useEffect(() => {
+                const move = (e) => setMousePos({ x: e.clientX, y: e.clientY });
+                const over = (e) => {
+                    const tag = e.target.tagName.toLowerCase();
+                    if (tag === 'button' || tag === 'select' || e.target.closest('button') || e.target.closest('a')) setHoverState('glow');
+                    else if (tag === 'img' || e.target.closest('.gallery-item')) setHoverState('hover');
+                    else setHoverState('');
+                };
+                window.addEventListener('mousemove', move);
+                window.addEventListener('mouseover', over);
+                return () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseover', over); };
+            }, []);
+            return (
+                <div className="hidden md:block pointer-events-none fixed inset-0 z-[10000]">
+                    <motion.div className="absolute w-2 h-2 bg-accent_green rounded-full shadow-[0_0_10px_rgba(58,167,109,0.5)]"
+                        animate={{ x: mousePos.x - 4, y: mousePos.y - 4, scale: hoverState ? 0 : 1 }} transition={{ type: "tween", ease: "backOut", duration: 0.1 }} />
+                    <motion.div className="absolute w-10 h-10 border border-accent_green/60 rounded-full flex items-center justify-center"
+                        animate={{ x: mousePos.x - 20, y: mousePos.y - 20, scale: hoverState === 'hover' ? 1.8 : hoverState === 'glow' ? 1.3 : 1, backgroundColor: hoverState === 'glow' ? "rgba(58,167,109,0.1)" : "transparent", borderColor: hoverState === 'hover' ? "rgba(58,167,109,0.8)" : "rgba(58,167,109,0.5)" }} transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.5 }} />
+                </div>
+            );
+        }
+
+        function CharReveal({ text, className, delay = 0, blur = false }) {
+            const chars = Array.from(text);
+            const container = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: delay } }};
+            const child = { hidden: { opacity: 0, y: 20, filter: blur ? "blur(5px)" : "none" }, visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { type: "spring", damping: 12, stiffness: 100 } } };
+            return (
+                <motion.div variants={container} initial="hidden" whileInView="visible" viewport={{ once: true }} className={className}>
+                    {chars.map((char, idx) => <motion.span variants={child} key={idx} className="inline-block whitespace-pre">{char}</motion.span>)}
+                </motion.div>
+            );
+        }
+
+        function LineReveal({ text, className, delay = 0 }) {
+            return (
+                <motion.p initial={{ opacity: 0, y: 30, filter: "blur(5px)" }} whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 1, delay, ease: "easeOut" }} className={className}>
+                    {text}
+                </motion.p>
+            );
+        }
+
+        /* ------------------------------------------------------------------
+           SCRAPBOOK TIMELINE SECTION
+           ------------------------------------------------------------------ */
+        function TimelineNode({ isActive, isPassed }) {
+            return (
+                <div className="absolute left-[40px] md:left-[100px] -translate-x-1/2 top-12 flex items-center justify-center w-8 md:w-10 h-8 md:h-10">
+                    <motion.div animate={{ opacity: isActive ? 1 : isPassed ? 0.4 : 0.1, scale: isActive ? [1, 1.2, 1] : 1 }} transition={{ duration: 2, repeat: isActive ? Infinity : 0 }} className="absolute w-full h-full rounded-full border border-accent_green/30 bg-accent_green/10" />
+                    <motion.div animate={{ backgroundColor: isActive || isPassed ? "#3AA76D" : "#CBD5E1", boxShadow: isActive ? "0 0 15px rgba(58,167,109,0.5)" : "none" }} className="w-3 h-3 md:w-4 md:h-4 rounded-full z-10 transition-colors duration-1000" />
+                </div>
+            );
+        }
+
+        function CinematicTimeline() {
+            const containerRef = useRef(null);
+            const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start 70%", "end 80%"] });
+            const lineHeight = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+            
+            const ref2021 = useRef(null); const isIn2021 = useInView(ref2021, { margin: "-20% 0px -20% 0px" });
+            const ref2022 = useRef(null); const isIn2022 = useInView(ref2022, { margin: "-20% 0px -20% 0px" });
+            const ref2026 = useRef(null); const isIn2026 = useInView(ref2026, { margin: "-20% 0px -20% 0px" });
+
+            const passed2021 = scrollYProgress.get() > 0.1;
+            const passed2022 = scrollYProgress.get() > 0.45;
+            const passed2026 = scrollYProgress.get() > 0.85;
+
+            return (
+                <section ref={containerRef} className="py-40 relative bg-surface overflow-hidden" id="timeline">
+                    <div className="absolute inset-0 pointer-events-none opacity-40">
+                        <div className="absolute top-[20%] right-[-10%] w-[50vw] h-[70vw] rounded-full bg-accent_green/10 blur-[100px]"></div>
+                        <div className="absolute bottom-[30%] left-[-20%] w-[40vw] h-[50vw] rounded-full bg-accent_orange/10 blur-[120px]"></div>
+                    </div>
+
+                    <div className="max-w-4xl mx-auto relative px-8 md:px-0">
+                        <div className="absolute left-[40px] md:left-[100px] top-12 bottom-32 w-[2px] bg-black/5 rounded-full z-0" />
+                        <motion.div className="absolute left-[40px] md:left-[100px] top-12 w-[2px] bg-gradient-to-b from-transparent via-accent_green to-accent_green z-0" style={{ height: lineHeight, transformOrigin: "top" }} />
+
+                        <div ref={ref2021} className="relative pl-[80px] md:pl-[180px] py-12 mb-16 md:mb-24 flex flex-col md:flex-row justify-between items-start md:items-center group z-10">
+                            <TimelineNode isActive={isIn2021} isPassed={passed2021} />
+                            <div className="w-full md:w-3/4">
+                                <motion.h4 initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, margin: "-10%" }} transition={{ duration: 0.8 }} className="font-serif text-5xl md:text-7xl text-accent_red mb-2 tracking-wider font-bold">2021</motion.h4>
+                                <motion.h5 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-10%" }} transition={{ delay: 0.2, duration: 0.8 }} className="font-serif text-xl md:text-2xl text-accent_green uppercase tracking-[0.2em] mb-4 font-bold">Bắt Đầu Học Tập</motion.h5>
+                                <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true, margin: "-10%" }} transition={{ delay: 0.4, duration: 1 }} className="font-sans text-sm md:text-base text-text_main leading-relaxed whitespace-pre-line">Chập chững bước vào giảng đường,<br/>mang theo hoài bão và sự tò mò<br/>về thế giới rộng lớn.</motion.p>
+                            </div>
+                            <div className="mt-6 md:mt-0 md:w-1/4 flex justify-start md:justify-end relative">
+                                <motion.svg initial={{ opacity: 0, x: -50, y: 30 }} whileInView={{ opacity: 1, x: 0, y: 0 }} viewport={{ once: true, margin: "-10%" }} transition={{ duration: 1.5, ease: "easeOut" }} width="120" height="60" viewBox="0 0 120 60" fill="none" className="overflow-visible">
+                                    <motion.path initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} viewport={{ once: true, margin: "-10%" }} transition={{ delay: 0.5, duration: 1.5, ease: "easeInOut" }} d="M 10 50 Q 40 10, 90 20" stroke="#F2A93B" strokeWidth="2" strokeDasharray="4 4" fill="none" className="opacity-70" />
+                                    <motion.g initial={{ x: -80, y: 30, opacity: 0 }} whileInView={{ x: 80, y: 15, opacity: 1 }} viewport={{ once: true, margin: "-10%" }} transition={{ delay: 0.5, duration: 1.5, ease: "easeInOut" }}><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F2A93B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></motion.g>
+                                </motion.svg>
+                            </div>
+                        </div>
+
+                        <div ref={ref2022} className="relative pl-[80px] md:pl-[180px] py-12 mb-16 md:mb-24 flex flex-col md:flex-row justify-between items-start md:items-center group z-10">
+                            <TimelineNode isActive={isIn2022} isPassed={passed2022} />
+                            <div className="w-full md:w-3/4">
+                                <motion.h4 initial={{ opacity: 0, filter: "blur(10px)" }} whileInView={{ opacity: 1, filter: "blur(0px)" }} viewport={{ once: true, margin: "-10%" }} transition={{ duration: 1 }} className="font-serif text-5xl md:text-6xl text-accent_red mb-2 tracking-wider font-bold">2022 – 2025</motion.h4>
+                                <motion.h5 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-10%" }} transition={{ delay: 0.2, duration: 0.8 }} className="font-serif text-xl md:text-2xl text-accent_green uppercase tracking-[0.2em] mb-4 font-bold">Học Hỏi, Trưởng Thành & Kỷ Niệm</motion.h5>
+                                <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true, margin: "-10%" }} transition={{ delay: 0.4, duration: 1 }} className="font-sans text-sm md:text-base text-text_main leading-relaxed whitespace-pre-line">Những năm tháng đầy thử thách nhưng cũng rực rỡ nhất.<br/>Học hỏi không ngừng, vượt qua giới hạn<br/>và tạo nên những kỷ niệm đáng nhớ.</motion.p>
+                            </div>
+                            <div className="mt-6 md:mt-0 md:w-1/4 flex justify-start md:justify-end relative">
+                                <motion.div initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, margin: "-10%" }} transition={{ duration: 1 }} className="relative">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#F2A93B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="relative z-10"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                                </motion.div>
+                            </div>
+                        </div>
+
+                        <div ref={ref2026} className="relative pl-[80px] md:pl-[180px] py-20 mt-10 flex flex-col md:flex-row justify-between items-start md:items-center group z-20">
+                            <AnimatePresence>
+                                {isIn2026 && ( <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 1.5 }} className="absolute -inset-20 bg-[radial-gradient(circle_at_center,_rgba(58,167,109,0.1)_0%,_transparent_60%)] blur-2xl pointer-events-none rounded-full" /> )}
+                            </AnimatePresence>
+                            <div className="absolute left-[40px] md:left-[100px] -translate-x-1/2 top-24 flex items-center justify-center w-10 md:w-12 h-10 md:h-12 z-10">
+                                <motion.div animate={{ opacity: isIn2026 ? [0.6, 1, 0.6] : 0.2, scale: isIn2026 ? [1, 1.4, 1] : 1 }} transition={{ duration: 2, repeat: Infinity }} className="absolute w-full h-full rounded-full border border-accent_green bg-accent_green/20" />
+                                <motion.div animate={{ backgroundColor: "#3AA76D", boxShadow: isIn2026 ? "0 0 20px rgba(58,167,109,0.6)" : "none" }} className="w-4 h-4 md:w-5 md:h-5 rounded-full z-10" />
+                            </div>
+                            <div className="w-full md:w-3/4 relative z-10">
+                                <motion.h4 initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-10%" }} transition={{ duration: 1.2, type: "spring" }} className="font-serif text-6xl md:text-8xl text-accent_red mb-2 tracking-widest font-bold">2026</motion.h4>
+                                <motion.h5 initial={{ opacity: 0, filter: "blur(10px)" }} whileInView={{ opacity: 1, filter: "blur(0px)" }} viewport={{ once: true, margin: "-10%" }} transition={{ delay: 0.3, duration: 1 }} className="font-serif text-2xl md:text-4xl text-accent_green uppercase tracking-[0.2em] mb-6 font-bold">Ngày Tốt Nghiệp</motion.h5>
+                                <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true, margin: "-10%" }} transition={{ delay: 0.6, duration: 1 }} className="font-sans text-base md:text-lg text-text_main leading-relaxed whitespace-pre-line">Không phải là kết thúc,<br/>mà là khởi đầu cho một<br/>chương mới đầy hy vọng.</motion.p>
+                            </div>
+                            <div className="mt-10 md:mt-0 md:w-1/4 flex justify-start md:justify-end relative z-10">
+                                <motion.div initial={{ opacity: 0, scale: 0.5, y: 50 }} whileInView={{ opacity: 1, scale: 1, y: 0 }} viewport={{ once: true, margin: "-10%" }} transition={{ duration: 1.5, type: "spring", bounce: 0.4 }} className="relative">
+                                    <motion.div animate={{ y: [-5, 5, -5] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }} className="relative z-10">
+                                        <svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="#E85D4E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+                                    </motion.div>
+                                </motion.div>
+                            </div>
+                        </div>
+
+                        <div className="relative pt-32 pb-10 z-10 flex flex-col items-center text-center">
+                            <motion.p initial={{ opacity: 0, filter: "blur(10px)", y: 20 }} whileInView={{ opacity: 1, filter: "blur(0px)", y: 0 }} viewport={{ once: true }} transition={{ duration: 1.5, ease: "easeOut" }} className="font-serif italic text-2xl md:text-4xl text-accent_green max-w-2xl mx-auto leading-relaxed">
+                                “Cảm ơn những người đã đồng hành<br/>trên hành trình trưởng thành của mình!”
+                            </motion.p>
+                            <div className="flex items-center justify-center mt-10 gap-6 w-full max-w-xs">
+                                <motion.div initial={{ width: 0 }} whileInView={{ width: "40%" }} viewport={{ once: true }} transition={{ delay: 1, duration: 1.5, ease: "easeInOut" }} className="h-[2px] bg-accent_green/30" />
+                                <motion.div initial={{ opacity: 0, scale: 0 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: 1.5, duration: 0.8, type: "spring" }} className="text-accent_red text-xl">♡</motion.div>
+                                <motion.div initial={{ width: 0 }} whileInView={{ width: "40%" }} viewport={{ once: true }} transition={{ delay: 1, duration: 1.5, ease: "easeInOut" }} className="h-[2px] bg-accent_green/30" />
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+            );
+        }
+
+        /* ------------------------------------------------------------------
+           COUNTDOWN SECTION
+           ------------------------------------------------------------------ */
+        function CountdownSection() {
+            const [timeLeft, setTimeLeft] = useState(null);
+            const [isExpired, setIsExpired] = useState(false);
+            const [showCelebration, setShowCelebration] = useState(false);
+
+            useEffect(() => {
+                const targetDateStr = `${siteConfig.graduationDate}T${siteConfig.graduationTime}+07:00`;
+                const target = new Date(targetDateStr).getTime();
+                const calculateTime = () => {
+                    const now = new Date().getTime();
+                    const difference = target - now;
+                    if (difference > 0) {
+                        setTimeLeft({ Ngày: Math.floor(difference / (1000 * 60 * 60 * 24)), Giờ: Math.floor((difference / (1000 * 60 * 60)) % 24), Phút: Math.floor((difference / 1000 / 60) % 60), Giây: Math.floor((difference / 1000) % 60) });
+                        setIsExpired(false);
+                    } else {
+                        setTimeLeft(null); setIsExpired(true);
+                        if (!showCelebration) { setShowCelebration(true); confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#E85D4E', '#3AA76D', '#F2A93B'] }); }
+                    }
+                };
+                calculateTime(); const timer = setInterval(calculateTime, 1000); return () => clearInterval(timer);
+            }, [showCelebration]);
+
+            return (
+                <section className="py-32 px-4 md:px-6 flex flex-col items-center bg-background">
+                    <CharReveal text="ĐẾM NGƯỢC ĐẾN NGÀY ĐẶC BIỆT" className="tracking-[0.3em] text-accent_green text-xs md:text-sm font-bold uppercase mb-16" />
+                    {isExpired ? (
+                        <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-center relative">
+                            <motion.div animate={{ y: [0, -20, 0] }} transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }} className="text-6xl mb-6">🎓</motion.div>
+                            <h2 className="font-serif text-4xl md:text-6xl text-accent_red font-bold uppercase">Hôm Nay Là Ngày Đặc Biệt!</h2>
+                        </motion.div>
+                    ) : (
+                        timeLeft && (
+                            <div className="flex flex-wrap justify-center gap-4 md:gap-8">
+                                {Object.entries(timeLeft).map(([unit, value]) => (
+                                    <div key={unit} className="flex flex-col items-center glass-panel p-4 md:p-8 rounded-2xl border border-accent_green/20 w-[80px] md:w-[140px] shadow-lg shadow-black/5 relative overflow-hidden group">
+                                        <div className="h-[40px] md:h-[70px] relative overflow-hidden w-full flex justify-center mb-2">
+                                            <AnimatePresence mode="popLayout">
+                                                <motion.span key={value} initial={{ y: "100%", opacity: 0, scale: 0.8 }} animate={{ y: "0%", opacity: 1, scale: 1 }} exit={{ y: "-100%", opacity: 0, scale: 0.8 }} transition={{ duration: 0.6, type: "spring", bounce: 0.2 }} className="font-serif text-3xl md:text-6xl text-accent_orange absolute font-bold">{value.toString().padStart(2, '0')}</motion.span>
+                                            </AnimatePresence>
+                                        </div>
+                                        <span className="text-[10px] md:text-sm tracking-[0.1em] md:tracking-[0.2em] text-accent_orange uppercase font-bold">{unit}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )
+                    )}
+                </section>
+            );
+        }
+
+        /* ------------------------------------------------------------------
+           CEREMONY SECTION (GOOGLE MAPS)
+           ------------------------------------------------------------------ */
+        /* ------------------------------------------------------------------
+           CEREMONY SECTION (CUSTOM MAP)
+           ------------------------------------------------------------------ */
+        function CeremonySection() {
+            const [isInView, setIsInView] = useState(false);
+            return (
+                <section id="ceremony" className="py-40 px-6 relative overflow-hidden flex justify-center bg-background">
+                    <motion.div onViewportEnter={() => setIsInView(true)} viewport={{ once: true, amount: 0.5 }} className="max-w-4xl w-full glass-panel p-8 md:p-20 relative text-center border border-accent_green/20 shadow-xl rounded-3xl z-10">
+                        <motion.div animate={{ opacity: isInView ? 1 : 0, scale: isInView ? 1 : 0.8 }} transition={{ duration: 1.5, delay: 0.5 }} className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl bg-white p-4 rounded-full border border-accent_orange/30 text-accent_orange shadow-lg">🎓</motion.div>
+                        <CharReveal text="LỄ TỐT NGHIỆP" className="font-serif text-4xl md:text-6xl tracking-[0.1em] mb-20 mt-10 text-accent_green uppercase font-bold" />
+                        
+                        <div className="space-y-10 font-serif text-xl md:text-2xl text-text_main w-full">
+                            {[{ label: "Nhân vật chính ", value: siteConfig.name, isRed: true }, { label: "Ngành học", value: siteConfig.major, italic: true }, { label: "Thời gian", value: `${siteConfig.displayDate} — ${siteConfig.time}`, isBlue: true }, { label: "Địa điểm", value: `${siteConfig.venue}\n${siteConfig.school}`, multi: true }].map((item, idx) => (
+                                <motion.div key={idx} initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 1 + idx * 0.2, duration: 0.8 }} className="flex flex-col md:flex-row justify-between border-b border-black/5 pb-6 group">
+                                    <span className="text-accent_green text-xs md:text-sm uppercase tracking-[0.2em] font-sans mb-3 md:mb-0 font-bold">{item.label}</span>
+                                    <span className={`text-left md:text-right font-bold ${item.isRed ? 'text-accent_red tracking-wider text-3xl' : ''} ${item.isBlue ? 'text-accent_blue' : ''} ${item.italic ? 'italic' : ''} ${item.multi ? 'whitespace-pre-line leading-relaxed text-lg font-medium' : ''}`}>{item.value}</span>
+                                </motion.div>
+                            ))}
+                        </div>
+
+                        {/* BẢN ĐỒ CUSTOM VẼ BẰNG CODE SVG */}
+                        <motion.div initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 2.0, duration: 0.8 }} className="w-full mt-10 rounded-2xl overflow-hidden shadow-lg border border-black/10 bg-white p-4 relative">
+                            {/* CSS cho đường đứt nét di chuyển */}
+                            <style>{`@keyframes dash { to { stroke-dashoffset: -50; } }`}</style>
+                            
+                            <svg viewBox="0 0 600 400" className="w-full h-[300px] md:h-[400px] bg-[#FAF8F1] rounded-xl">
+                                {/* Các con đường (Roads) */}
+                                <path d="M 60 450 L 120 -50" stroke="#EBF1E6" strokeWidth="45" strokeLinecap="round" /> {/* Đường Nguyễn Lương Bằng */}
+                                <path d="M 80 350 L 650 150" stroke="#EBF1E6" strokeWidth="35" strokeLinecap="round" /> {/* Trục đường chính trong trường */}
+                                <path d="M 250 290 L 180 120" stroke="#EBF1E6" strokeWidth="25" strokeLinecap="round" /> {/* Đường rẽ vào bãi để xe */}
+                                <path d="M 400 235 L 550 400" stroke="#EBF1E6" strokeWidth="25" strokeLinecap="round" /> {/* Đường từ cổng phụ đi vào */}
+
+                                {/* Tên đường */}
+                                <text x="75" y="250" fill="#718096" fontSize="12" fontWeight="600" transform="rotate(-75 75 250)">Nguyễn Lương Bằng</text>
+
+                                {/* Lộ trình đi bộ đứt nét (Từ bãi xe đi bộ sang khu F) */}
+                                <path d="M 200 120 Q 320 80 440 90" stroke="#F2A93B" strokeWidth="4" strokeDasharray="8 6" fill="none" style={{ animation: 'dash 3s linear infinite' }} />
+
+                                {/* Điểm 1: Cổng chính */}
+                                <g transform="translate(80, 350)">
+                                    <circle cx="0" cy="0" r="14" fill="#E85D4E" />
+                                    <circle cx="0" cy="0" r="5" fill="#fff" />
+                                    <text x="22" y="5" fill="#4A5568" fontSize="16" fontWeight="bold">Cổng Chính "54 Nguyễn Lương Bằng"</text>
+                                </g>
+
+                                {/* Điểm 2: Cổng phụ */}
+                                <g transform="translate(470, 310)">
+                                    <circle cx="0" cy="0" r="14" fill="#E85D4E" />
+                                    <circle cx="0" cy="0" r="5" fill="#fff" />
+                                    <text x="22" y="-2" fill="#4A5568" fontSize="15" fontWeight="bold">
+                                        <tspan x="22" dy="0">Cổng Phụ</tspan>
+                                        <tspan x="22" dy="18" fontSize="13" fill="#718096">đường Ngô Sĩ Liên</tspan>
+                                    </text>
+                                </g>
+
+                                {/* Điểm 3: Bãi để xe */}
+                                <g transform="translate(180, 120)">
+                                    <rect x="-18" y="-18" width="36" height="36" rx="8" fill="#5B7C99" />
+                                    <text x="0" y="6" fill="#fff" fontSize="18" fontWeight="bold" textAnchor="middle">P</text>
+                                    <text x="-25" y="-25" fill="#4A5568" fontSize="15" fontWeight="bold">Để xe, nhà xe khu B</text>
+                                </g>
+
+                                {/* Điểm 4: Nơi diễn ra (Khu F) */}
+                                <g transform="translate(460, 90)">
+                                    <circle cx="0" cy="0" r="22" fill="#3AA76D" />
+                                    <text x="0" y="6" fill="#fff" fontSize="18" textAnchor="middle">🎓</text>
+                                    <text x="0" y="-30" fill="#3AA76D" fontSize="17" fontWeight="bold" textAnchor="middle">Khu F (Nơi diễn ra sự kiện)</text>
+                                </g>
+                            </svg>
+                        </motion.div>
+
+                        <motion.a initial={{ opacity: 0 }} animate={isInView ? { opacity: 1 } : {}} transition={{ delay: 2.5 }} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} href={siteConfig.mapUrl} target="_blank" className="mt-10 inline-flex items-center space-x-3 px-12 py-5 bg-accent_green text-white rounded-full text-xs tracking-[0.2em] uppercase transition-all font-bold shadow-lg shadow-accent_green/30">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                            <span>Mở Google Maps</span>
+                        </motion.a>
+                    </motion.div>
+                </section>
+            );
+        }
+
+        /* ------------------------------------------------------------------
+           WISHES SECTION
+           ------------------------------------------------------------------ */
+        function ExpandableText({ text }) {
+            const [expanded, setExpanded] = useState(false);
+            const isLong = text.length > 150 || text.split('\n').length > 4;
+            return (
+                <div>
+                    <p className={`font-sans text-sm md:text-base text-text_main leading-relaxed whitespace-pre-line ${expanded ? '' : 'line-clamp-4'}`}>{text}</p>
+                    {isLong && ( <button onClick={() => setExpanded(!expanded)} className="text-accent_orange text-xs uppercase tracking-widest mt-3 hover:text-accent_red transition-colors font-bold">{expanded ? "Thu gọn" : "Xem thêm"}</button> )}
+                </div>
+            );
+        }
+
+        function WishesSection() {
+            const [wishes, setWishes] = useState([]);
+            const [loading, setLoading] = useState(true);
+
+            useEffect(() => {
+                const fetchWishes = async () => {
+                    try {
+                        const response = await fetch(`${dbConfig.supabaseUrl}/rest/v1/${dbConfig.tableName}?select=*&publicMessage=eq.true&approved=eq.true&order=created_at.desc`, {
+                            headers: { 'apikey': dbConfig.supabaseAnonKey, 'Authorization': `Bearer ${dbConfig.supabaseAnonKey}` }
+                        });
+                        const data = await response.json();
+                        if (response.ok) {
+                            setWishes(data);
+                        } else {
+                            console.error("Lỗi lấy dữ liệu Supabase:", data);
+                        }
+                    } catch (error) { 
+                        console.error(error); 
+                    } finally { 
+                        setLoading(false); 
+                    }
+                };
+                fetchWishes();
+            }, []);
+
+            useEffect(() => {
+                const handleNewWish = (e) => {
+                    setWishes(prevWishes => [e.detail, ...prevWishes]);
+                };
+                window.addEventListener('newWishAdded', handleNewWish);
+                return () => window.removeEventListener('newWishAdded', handleNewWish);
+            }, []);
+
+            return (
+                <section className="py-32 px-6 relative overflow-hidden bg-surface">
+                    <div className="text-center mb-20">
+                        <CharReveal text="✨ LỜI CHÚC TỪ MỌI NGƯỜI ✨" className="font-serif text-3xl md:text-5xl tracking-[0.1em] text-accent_green uppercase font-bold" />
+                    </div>
+                    <div className="max-w-6xl mx-auto">
+                        {loading ? (
+                            <div className="flex justify-center py-10"><div className="w-10 h-10 border-4 border-accent_green/30 border-t-accent_green rounded-full animate-spin"></div></div>
+                        ) : wishes.length > 0 ? (
+                            <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+                                <AnimatePresence>
+                                    {wishes.map((wish, idx) => (
+                                        <motion.div 
+                                            key={wish.id || idx} 
+                                            initial={{ opacity: 0, y: 30, scale: 0.98 }} 
+                                            animate={{ opacity: 1, y: 0, scale: 1 }} 
+                                            exit={{ opacity: 0, scale: 0.9 }}
+                                            transition={{ duration: 0.6, delay: (idx % 3) * 0.15, type: "spring" }} 
+                                            whileHover={{ y: -5, boxShadow: "0 15px 30px -10px rgba(0,0,0,0.1)" }} 
+                                            className="break-inside-avoid bg-white p-8 rounded-2xl border border-accent_green/20 relative group transition-all duration-300"
+                                        >
+                                            <h5 className="font-serif text-xl md:text-2xl text-accent_red uppercase tracking-wider mb-4 font-bold">{wish.name}</h5>
+                                            <ExpandableText text={wish.message} />
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
+                            </div>
+                        ) : (
+                            <div className="text-center py-20 border-2 border-dashed border-accent_green/30 rounded-2xl bg-white/50">
+                                <p className="font-serif text-2xl text-accent_green font-bold mb-4">Chưa có lời chúc nào...</p>
+                                <p className="font-sans text-text_muted text-sm tracking-wide">Hãy là người đầu tiên gửi lời chúc đến Mạnh nhé! 🎓</p>
+                            </div>
+                        )}
+                    </div>
+                </section>
+            );
+        }
+
+        /* ------------------------------------------------------------------
+           RSVP SECTION 
+           ------------------------------------------------------------------ */
+        function RSVPSection() {
+            const [view, setView] = useState('buttons'); 
+            const [isSubmitting, setIsSubmitting] = useState(false);
+            const [submitError, setSubmitError] = useState(false);
+            const [attendance, setAttendance] = useState('Tôi sẽ tham dự 🎉');
+            const [isPublic, setIsPublic] = useState(true);
+            const [formData, setFormData] = useState({ name: '', guests: '1 người', message: '' });
+
+            const handleSelectAttendance = (isAttending) => { setAttendance(isAttending ? 'Tôi sẽ tham dự 🎉' : 'Rất tiếc, tôi không thể tham dự'); setView('form'); };
+            const handleChange = (e) => { setFormData({ ...formData, [e.target.name]: e.target.value }); };
+
+            const handleSubmit = async (e) => {
+                e.preventDefault(); setIsSubmitting(true); setSubmitError(false);
+                const payloadFormspree = { name: formData.name, attendance: attendance, message: formData.message, publicMessage: isPublic };
+                if (attendance.includes('sẽ tham dự')) payloadFormspree.guests = formData.guests;
+
+                try {
+                    const formspreeRes = fetch('https://formspree.io/f/xqagrdej', { method: 'POST', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify(payloadFormspree) });
+                    
+                    let supabaseRes = null;
+                    if (formData.message.trim() !== '') {
+                        supabaseRes = fetch(`${dbConfig.supabaseUrl}/rest/v1/${dbConfig.tableName}`, { 
+                            method: 'POST', 
+                            headers: { 'apikey': dbConfig.supabaseAnonKey, 'Authorization': `Bearer ${dbConfig.supabaseAnonKey}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }, 
+                            body: JSON.stringify({ name: formData.name, message: formData.message, publicMessage: isPublic, approved: true }) 
+                        });
+                    }
+                    
+                    const [res1] = await Promise.all([formspreeRes, supabaseRes].filter(Boolean));
+                    
+                    if (res1.ok) { 
+                        setView('success'); 
+                        if (isPublic && formData.message.trim() !== '') {
+                            const newWish = { id: Date.now(), name: formData.name, message: formData.message };
+                            window.dispatchEvent(new CustomEvent('newWishAdded', { detail: newWish }));
+                        }
+                    } else { 
+                        setSubmitError(true); 
+                    }
+                } catch (error) { setSubmitError(true); } finally { setIsSubmitting(false); }
+            };
+
+            useEffect(() => { if (view === 'success') { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#E85D4E', '#3AA76D', '#F2A93B'] }); } }, [view]);
+
+            return (
+                <section id="rsvp" className="py-32 px-6 text-center relative overflow-hidden pb-20 bg-background">
+                    <div className="max-w-xl mx-auto bg-white p-8 md:p-16 border border-black/5 shadow-2xl rounded-3xl relative z-10">
+                        <CharReveal text="BẠN SẼ ĐẾN CHỨ?" className="font-serif text-4xl md:text-5xl mb-6 text-accent_green font-bold tracking-wide" />
+                        <p className="text-text_muted font-serif italic text-xl mb-12">"Sự hiện diện của bạn sẽ làm cho ngày này trở nên đặc biệt hơn rất nhiều."</p>
+                        <AnimatePresence mode="wait">
+                            {view === 'buttons' && (
+                                <motion.div key="buttons" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="flex flex-col sm:flex-row justify-center gap-6">
+                                    <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => handleSelectAttendance(true)} className="px-8 py-5 bg-accent_green text-white rounded-full font-bold tracking-[0.1em] text-sm uppercase shadow-lg shadow-accent_green/30">Tôi Sẽ Tham Dự ❤️</motion.button>
+                                    <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => handleSelectAttendance(false)} className="px-8 py-5 border-2 border-black/10 text-text_main rounded-full font-bold tracking-[0.1em] text-sm uppercase hover:bg-black/5">Rất Tiếc, Không Thể</motion.button>
+                                </motion.div>
+                            )}
+                            {view === 'form' && (
+                                <motion.form key="form" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0 }} onSubmit={handleSubmit} className="flex flex-col space-y-8 text-left">
+                                    <div><label className="block text-xs uppercase tracking-[0.2em] text-accent_green mb-2 font-bold">Họ và tên *</label><input type="text" name="name" value={formData.name} onChange={handleChange} required className="w-full border-b-2 border-black/10 py-3 bg-transparent focus:outline-none focus:border-accent_green text-text_main text-xl font-serif italic transition-colors" placeholder="Nhập tên của bạn" /></div>
+                                    {attendance.includes('sẽ tham dự') && ( <div><label className="block text-xs uppercase tracking-[0.2em] text-accent_green mb-2 font-bold">Số người tham dự *</label><div className="relative"><select name="guests" value={formData.guests} onChange={handleChange} required className="w-full border-b-2 border-black/10 py-3 bg-transparent focus:outline-none focus:border-accent_green text-text_main text-xl font-serif transition-colors appearance-none pr-10"><option value="1 người">1 người</option><option value="2 người">2 người</option><option value="3 người">3 người</option><option value="4 người">4 người</option><option value="Khác">Khác</option></select><div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-accent_green"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"></polyline></svg></div></div></div> )}
+                                    <div>
+                                        <label className="block text-xs uppercase tracking-[0.2em] text-accent_green mb-2 font-bold">Lời chúc dành cho Mạnh</label>
+                                        <textarea name="message" value={formData.message} onChange={handleChange} rows="3" className="w-full border-b-2 border-black/10 py-3 bg-transparent focus:outline-none focus:border-accent_green text-text_main text-xl font-serif italic resize-none transition-colors" placeholder="Gửi một lời chúc đến Mạnh... 🎓"></textarea>
+                                        <div className="mt-4 flex items-start space-x-3 cursor-pointer group" onClick={() => setIsPublic(!isPublic)}>
+                                            <div className={`mt-0.5 w-5 h-5 rounded border-2 flex-shrink-0 flex items-center justify-center transition-colors ${isPublic ? 'bg-accent_green border-accent_green' : 'border-black/20 group-hover:border-accent_green/50'}`}>
+                                                {isPublic && <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><polyline points="20 6 9 17 4 12"></polyline></svg>}
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-sans text-text_main font-medium select-none">Cho phép hiển thị lời chúc trên website</p>
+                                                <p className="text-[10px] text-text_muted font-sans mt-1">Nếu không chọn, lời chúc sẽ gửi riêng và không xuất hiện công khai.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {submitError && ( <p className="text-red-500 text-sm text-center font-sans tracking-wide">Có lỗi xảy ra khi gửi thông tin.<br/>Vui lòng thử lại sau ít phút.</p> )}
+                                    <motion.button disabled={isSubmitting} whileHover={!isSubmitting ? { scale: 1.02 } : {}} whileTap={!isSubmitting ? { scale: 0.98 } : {}} type="submit" className={`w-full py-5 bg-accent_red text-white rounded-full tracking-[0.2em] text-sm font-bold uppercase mt-8 relative flex justify-center shadow-lg shadow-accent_red/30 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}>{isSubmitting ? 'ĐANG GỬI...' : 'GỬI XÁC NHẬN'}</motion.button>
+                                </motion.form>
+                            )}
+                            {view === 'success' && (
+                                <motion.div key="success" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-12 relative">
+                                    <motion.div initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", delay: 0.2 }} className="w-24 h-24 mx-auto border-4 border-accent_green rounded-full flex items-center justify-center mb-8 bg-accent_green/10"><svg xmlns="http://www.w3.org/2000/svg" className="text-accent_green h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg></motion.div>
+                                    <h4 className="font-serif text-4xl md:text-5xl text-accent_red font-bold mb-6 tracking-wider">🎓 CẢM ƠN BẠN!</h4>
+                                    <p className="text-xl text-text_main font-serif italic relative z-10 leading-relaxed mb-4">Lời chúc của bạn đã được gửi đến Mạnh.</p>
+                                    <div className="bg-surface border border-accent_green/20 p-4 rounded-xl relative z-10 inline-block">
+                                        <p className="text-sm font-sans text-accent_green font-medium tracking-wide">
+                                            {isPublic ? "Lời chúc của bạn đã được hiển thị công khai trên website." : "Lời chúc của bạn sẽ chỉ được gửi riêng đến Mạnh."}
+                                        </p>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+                </section>
+            );
+        }
+
+        /* ------------------------------------------------------------------
+           CONTACT FOOTER
+           ------------------------------------------------------------------ */
+        function ContactFooter() {
+            return (
+                <footer className="py-32 text-center px-6 relative border-t border-black/5 bg-surface overflow-hidden">
+                    <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 1 }} className="relative z-10 max-w-2xl mx-auto">
+                        <CharReveal text="HẸN GẶP BẠN TRONG NGÀY ĐẶC BIỆT 🎓" className="font-serif text-2xl md:text-4xl text-accent_green font-bold mb-6 tracking-widest uppercase" />
+                        <p className="text-text_main font-serif italic text-lg md:text-xl mb-12">Nếu bạn cần liên hệ hoặc muốn gửi lời chúc riêng, hãy tìm mình qua những thông tin dưới đây nhé.</p>
+
+                        <div className="flex flex-col md:flex-row justify-center items-center gap-6 md:gap-10 mb-20">
+                            <motion.a href={`tel:${siteConfig.contact.phone}`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex items-center space-x-3 px-8 py-4 bg-white border border-accent_green text-accent_green rounded-full hover:bg-accent_green hover:text-white transition-all duration-300 group w-full md:w-auto justify-center shadow-lg shadow-black/5">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                <span className="font-sans text-sm tracking-widest font-bold">{siteConfig.contact.phone}</span>
+                            </motion.a>
+
+                            <motion.a href={siteConfig.contact.facebookUrl} target="_blank" rel="noopener noreferrer" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex items-center space-x-3 text-accent_blue hover:text-accent_green transition-colors duration-300 group relative w-full md:w-auto justify-center py-4 md:py-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                                <span className="font-sans text-sm tracking-widest font-bold relative overflow-hidden">
+                                    FACEBOOK
+                                    <span className="absolute bottom-0 left-0 w-full h-[2px] bg-accent_green transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></span>
+                                </span>
+                            </motion.a>
+                        </div>
+
+                        <div className="w-24 h-[2px] bg-accent_green/30 mx-auto mb-10"></div>
+                        <p className="tracking-[0.2em] text-sm mb-4 uppercase text-text_main font-bold">{siteConfig.name} &bull; TỐT NGHIỆP {siteConfig.graduationYear}</p>
+                        <p className="text-xs text-text_muted font-serif italic">&copy; {siteConfig.graduationYear} &bull; Made with memories & a little bit of caffeine. ☕</p>
+                    </motion.div>
+                </footer>
+            );
+        }
+
+        /* ------------------------------------------------------------------
+           ROOT APP COMPONENT
+           ------------------------------------------------------------------ */
+        function App() {
+            const [isOpen, setIsOpen] = useState(false);
+            const [isPlaying, setIsPlaying] = useState(false);
+            const [lightboxIdx, setLightboxIdx] = useState(null);
+            const [showTooltip, setShowTooltip] = useState(false);
+            const audioRef = useRef(null);
+            
+            const { scrollYProgress } = useScroll();
+            const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
+
+            useEffect(() => { if (audioRef.current) audioRef.current.volume = 0.3; }, []);
+            const openInvitation = () => { 
+    setIsOpen(true); 
+    // Thêm lệnh tự động bật nhạc khi click mở thiệp
+    if (audioRef.current) {
+        audioRef.current.play().catch(error => console.log("Trình duyệt chặn autoplay:", error));
+        setIsPlaying(true);
+    }
+};
+            const toggleMusic = () => {
+                if (!audioRef.current) return;
+                if (isPlaying) audioRef.current.pause(); else audioRef.current.play();
+                setIsPlaying(!isPlaying);
+            };
+
+            useEffect(() => { document.body.style.overflow = isOpen ? 'unset' : 'hidden'; if (isOpen) window.scrollTo(0, 0); }, [isOpen]);
+
+            return (
+                <div className="relative font-sans text-text_main bg-background">
+                    <CustomCursor />
+                    <ParticleBackground intensity={isOpen ? 1 : 0.3} />
+                    
+                    {isOpen && <InsideFloatingIcons />}
+
+                    <audio ref={audioRef} src={siteConfig.musicUrl} loop />
+
+                    <AnimatePresence>
+                        {isOpen && (
+                            <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1 }} className="fixed bottom-8 right-8 z-50 flex flex-col items-center" onMouseEnter={() => setShowTooltip(true)} onMouseLeave={() => setShowTooltip(false)}>
+                                {showTooltip && ( <div className="absolute -top-10 whitespace-nowrap bg-white shadow-lg border border-black/5 px-3 py-1 rounded-md text-[10px] uppercase tracking-widest text-accent_green font-bold tooltip-enter">{isPlaying ? "Tắt Nhạc" : "Bật Nhạc"}</div> )}
+                                <motion.button onClick={toggleMusic} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="relative p-4 bg-accent_green rounded-full text-white hover:bg-accent_green/90 shadow-lg shadow-accent_green/30 transition-colors group">
+                                    <motion.div animate={{ rotate: isPlaying ? 360 : 0 }} transition={{ duration: 10, repeat: Infinity, ease: "linear" }}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            {isPlaying ? ( <path strokeLinecap="round" strokeLinejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" /> ) : ( <path strokeLinecap="round" strokeLinejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /> )}
+                                        </svg>
+                                    </motion.div>
+                                </motion.button>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* OPENING SCREEN (BÊN NGOÀI) */}
+                    <AnimatePresence>
+                        {!isOpen && (
+                            <motion.div exit={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }} transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1] }} className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-background overflow-hidden">
+                                
+                                <OpeningFloatingIcons />
+
+                                <motion.div className="relative z-20 flex flex-col items-center text-center px-4">
+                                    <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.5, duration: 1, type: "spring" }} className="mb-6 text-accent_green"><svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg></motion.div>
+                                    <CharReveal text="TRÂN TRỌNG KÍNH MỜI" delay={1} className="tracking-[0.3em] text-sm md:text-base text-accent_green mb-4 font-bold uppercase" />
+                                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2, duration: 1 }} className="font-serif italic text-text_muted mb-8 text-xl">đến dự lễ tốt nghiệp của</motion.p>
+                                    <CharReveal text="TÂN KỸ SƯ" delay={2.5} className="font-serif text-5xl md:text-7xl mb-4 text-accent_red tracking-wider uppercase font-bold" />
+                                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 4, duration: 1 }} className="font-serif text-2xl text-accent_blue mb-16 italic font-medium">Khóa {siteConfig.graduationYear}</motion.p>
+                                    <motion.button initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 4.5, duration: 1 }} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={openInvitation} className="px-10 py-4 border-2 border-accent_green text-accent_green text-sm tracking-[0.2em] uppercase transition-all duration-300 hover:bg-accent_green hover:text-white rounded-full font-bold shadow-lg shadow-accent_green/20"><span className="relative z-10">MỞ THƯ MỜI</span></motion.button>
+                                </motion.div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* MAIN CONTENT */}
+                    <div style={{ opacity: isOpen ? 1 : 0, transition: 'opacity 1.5s ease-in-out' }} className="relative z-10">
+                        <section id="home" className="min-h-screen flex flex-col items-center justify-center relative px-6 text-center overflow-hidden">
+                            <motion.div style={{ y: heroY }} className="absolute inset-0 z-0 opacity-40"><img src={siteConfig.heroImage} className="w-full h-full object-cover" alt="" /><div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/80 to-background"></div></motion.div>
+                            <div className="relative z-10 flex flex-col items-center mt-20">
+                                <motion.p initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 1 }} className="tracking-[0.2em] text-accent_orange text-sm font-bold uppercase mb-6">Ngày Đặc Biệt Đã Đến</motion.p>
+                                <CharReveal text="LỄ TỐT NGHIỆP" delay={0.3} className="font-serif text-5xl md:text-8xl mb-4 tracking-wider text-accent_green uppercase font-bold" />
+                                <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 1, duration: 1 }} className="font-serif italic text-2xl md:text-4xl text-text_muted mb-16">Của Mình </motion.h2>
+                                <motion.div initial={{ height: 0, opacity: 0 }} whileInView={{ height: "auto", opacity: 1 }} viewport={{ once: true }} transition={{ duration: 1.5, ease: "easeInOut" }} className="w-full max-w-sm aspect-[3/4] p-2 bg-white border border-black/5 shadow-2xl rounded-2xl overflow-hidden relative"><motion.img initial={{ scale: 1.2, filter: "blur(5px)" }} whileInView={{ scale: 1, filter: "blur(0px)" }} transition={{ duration: 2, ease: "easeOut" }} src={siteConfig.heroImage} alt="Portrait" className="w-full h-full object-cover object-[30%_center] rounded-xl" /></motion.div>
+                                <motion.div animate={{ y: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }} className="mt-20 text-accent_green"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"></polyline></svg></motion.div>
+                            </div>
+                        </section>
+
+                        <section id="story" className="py-40 px-6 flex flex-col items-center text-center relative">
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-32 bg-gradient-to-b from-transparent to-accent_green/30"></div>
+                            <CharReveal text={siteConfig.story.title.toUpperCase()} className="font-serif text-3xl md:text-5xl mb-16 text-accent_red tracking-[0.1em] font-bold" />
+                            <div className="max-w-2xl mx-auto space-y-12">
+                                {siteConfig.story.paragraphs.map((text, idx) => ( <LineReveal key={idx} text={text} delay={idx * 0.2} className="text-lg md:text-2xl font-serif leading-relaxed text-text_main font-medium" /> ))}
+                            </div>
+                        </section>
+
+                        <CinematicTimeline />
+                        <CountdownSection />
+
+                        <section id="memories" className="py-40 px-6 relative bg-surface">
+                            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-20">
+                                <h3 className="font-serif text-4xl md:text-5xl tracking-[0.1em] text-accent_green uppercase font-bold">Những Kỷ Niệm</h3><p className="font-serif italic text-text_muted text-xl mt-4 font-medium">Lưu giữ từng khoảnh khắc</p>
+                            </motion.div>
+                            <div className="max-w-6xl mx-auto columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+                                {siteConfig.galleryImages.map((src, idx) => (
+                                    <motion.div key={idx} initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)", y: 50 }} whileInView={{ opacity: 1, scale: 1, filter: "blur(0px)", y: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 0.8, delay: (idx % 3) * 0.15, type: "spring", bounce: 0.2 }} onClick={() => setLightboxIdx(idx)} className="gallery-item break-inside-avoid overflow-hidden rounded-2xl shadow-lg relative group border border-black/5 bg-white p-2">
+                                        <motion.div animate={{ y: [0, -4, 0] }} transition={{ duration: 4 + (idx % 3), repeat: Infinity, ease: "easeInOut" }} className="w-full h-full rounded-xl overflow-hidden relative">
+                                            <img src={src} alt={`Kỷ niệm ${idx}`} className="w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-accent_green/90 via-accent_green/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end justify-center pb-8"><span className="font-sans text-xs tracking-[0.2em] text-white opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 font-bold">XEM ẢNH</span></div>
+                                        </motion.div>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </section>
+
+                        <section className="py-40 px-6 text-center relative overflow-hidden bg-background">
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-32 bg-gradient-to-b from-transparent to-accent_red/20"></div>
+                            <CharReveal text={siteConfig.thankYou.title.toUpperCase()} className="font-serif text-4xl md:text-5xl mb-12 text-accent_red tracking-[0.1em] font-bold" />
+                            <div className="max-w-4xl mx-auto space-y-10 relative z-10">
+                                <motion.p initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 1.5, ease: "easeOut" }} className="text-2xl md:text-4xl font-serif italic text-accent_green leading-relaxed mb-16 font-bold">"{siteConfig.thankYou.highlight}"</motion.p>
+                                {siteConfig.thankYou.paragraphs.map((text, idx) => ( <LineReveal key={idx} text={text} delay={idx * 0.2} className="text-lg md:text-xl font-serif text-text_main font-medium" /> ))}
+                            </div>
+                        </section>
+
+                        <CeremonySection />
+                        <WishesSection />
+                        <RSVPSection />
+                        <ContactFooter />
+
+                    </div>
+                    
+                    <AnimatePresence>
+                        {lightboxIdx !== null && (
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center">
+                                <button onClick={() => setLightboxIdx(null)} className="absolute top-6 right-6 p-4 text-white hover:text-accent_orange transition-colors z-50"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                                <div className="absolute inset-y-0 left-0 w-1/3 cursor-w-resize z-40" onClick={() => setLightboxIdx((lightboxIdx - 1 + siteConfig.galleryImages.length) % siteConfig.galleryImages.length)} />
+                                <div className="absolute inset-y-0 right-0 w-1/3 cursor-e-resize z-40" onClick={() => setLightboxIdx((lightboxIdx + 1) % siteConfig.galleryImages.length)} />
+                                <motion.img key={lightboxIdx} initial={{ opacity: 0, scale: 0.9, x: 50 }} animate={{ opacity: 1, scale: 1, x: 0 }} exit={{ opacity: 0, scale: 0.9, x: -50 }} transition={{ duration: 0.4, type: "spring" }} src={siteConfig.galleryImages[lightboxIdx]} className="max-w-[90vw] max-h-[85vh] object-contain shadow-2xl relative z-10 pointer-events-none rounded-xl" />
+                                <p className="absolute bottom-10 font-sans tracking-[0.2em] text-sm text-white/70 font-medium">{lightboxIdx + 1} / {siteConfig.galleryImages.length}</p>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
