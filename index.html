@@ -434,7 +434,7 @@
             const [isInView, setIsInView] = useState(false);
             return (
                 <section id="ceremony" className="py-40 px-6 relative overflow-hidden flex justify-center bg-background">
-                    <motion.div onViewportEnter={() => setIsInView(true)} viewport={{ once: true, amount:some }} className="max-w-4xl w-full glass-panel p-8 md:p-20 relative text-center border border-accent_green/20 shadow-xl rounded-3xl z-10">
+                    <motion.div onViewportEnter={() => setIsInView(true)} viewport={{ once: true, amount:"some" }} className="max-w-4xl w-full glass-panel p-8 md:p-20 relative text-center border border-accent_green/20 shadow-xl rounded-3xl z-10">
                         <motion.div animate={{ opacity: isInView ? 1 : 0, scale: isInView ? 1 : 0.8 }} transition={{ duration: 1.5, delay: 0.5 }} className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 text-5xl bg-white p-4 rounded-full border border-accent_orange/30 text-accent_orange shadow-lg">🎓</motion.div>
                         <CharReveal text="LỄ TỐT NGHIỆP" className="font-serif text-4xl md:text-6xl tracking-[0.1em] mb-20 mt-10 text-accent_green uppercase font-bold" />
                         
