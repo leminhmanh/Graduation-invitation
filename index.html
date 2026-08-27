@@ -60,7 +60,6 @@
         .tooltip-enter { animation: fadeIn 0.2s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .line-clamp-4 { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
-        .word-wrap-anywhere { overflow-wrap: anywhere; word-wrap: break-word; }
     </style>
 </head>
 <body class="font-sans antialiased selection:bg-accent_green selection:text-white relative w-full">
@@ -197,7 +196,6 @@
                 window.addEventListener('resize', resize);
                 resize();
                 const isMobile = window.innerWidth < 768;
-                // Giảm nhẹ số lượng hạt trên mobile để tối ưu hiệu năng và không rối mắt
                 const particleCount = isMobile ? 15 * intensity : 40 * intensity;
                 for (let i = 0; i < particleCount; i++) {
                     particles.push({
@@ -252,13 +250,28 @@
             );
         }
 
+        /* FIX 1: THUẬT TOÁN TÁCH CHỮ GIỮ NGUYÊN TỪNG "TỪ" ĐỂ KHÔNG BỊ RỚT KÝ TỰ LẺ TẺ TRÊN MOBILE */
         function CharReveal({ text, className, delay = 0, blur = false }) {
-            const chars = Array.from(text);
+            const words = text.split(/(\s+)/); // Tách theo khoảng trắng nhưng vẫn giữ lại khoảng trắng
             const container = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.05, delayChildren: delay } }};
             const child = { hidden: { opacity: 0, y: 20, filter: blur ? "blur(5px)" : "none" }, visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { type: "spring", damping: 12, stiffness: 100 } } };
+            
             return (
-                <motion.div variants={container} initial="hidden" whileInView="visible" viewport={{ once: true }} className={className}>
-                    {chars.map((char, idx) => <motion.span variants={child} key={idx} className="inline-block whitespace-pre">{char}</motion.span>)}
+                <motion.div variants={container} initial="hidden" whileInView="visible" viewport={{ once: true }} className={`${className} flex flex-wrap justify-center`}>
+                    {words.map((word, wordIdx) => {
+                        // Nếu là khoảng trắng thì render ra khoảng trắng cố định
+                        if (/\s+/.test(word)) {
+                            return <span key={wordIdx} className="inline-block w-[0.25em]">&nbsp;</span>;
+                        }
+                        // Nếu là chữ thì bọc trong thẻ chống bẻ gãy từ (whitespace-nowrap)
+                        return (
+                            <span key={wordIdx} className="whitespace-nowrap inline-block">
+                                {Array.from(word).map((char, charIdx) => (
+                                    <motion.span variants={child} key={charIdx} className="inline-block">{char}</motion.span>
+                                ))}
+                            </span>
+                        );
+                    })}
                 </motion.div>
             );
         }
@@ -434,44 +447,44 @@
             return (
                 <section id="ceremony" className="py-24 md:py-40 px-4 sm:px-6 relative overflow-hidden flex justify-center bg-background w-full">
                     <motion.div onViewportEnter={() => setIsInView(true)} viewport={{ once: true, amount: 0.2 }} className="max-w-4xl w-full glass-panel p-6 sm:p-8 md:p-20 relative text-center border border-accent_green/20 shadow-xl rounded-2xl md:rounded-3xl z-10 mx-auto">
-                        <motion.div animate={{ opacity: isInView ? 1 : 0, scale: isInView ? 1 : 0.8 }} transition={{ duration: 1.5, delay: 0.5 }} className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl md:text-5xl bg-white p-3 md:p-4 rounded-full border border-accent_orange/30 text-accent_orange shadow-lg">🎓</motion.div>
+                        
+                        {/* FIX 2: BỌC LẠI BẰNG THẺ DIV TĨNH ĐỂ KHÔNG BỊ FRAMER MOTION LÀM LỆCH TỌA ĐỘ */}
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+                            <motion.div animate={{ opacity: isInView ? 1 : 0, scale: isInView ? 1 : 0.8 }} transition={{ duration: 1.5, delay: 0.5 }} className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center text-4xl md:text-5xl bg-white rounded-full border border-accent_orange/30 text-accent_orange shadow-lg">
+                                🎓
+                            </motion.div>
+                        </div>
+
                         <CharReveal text="LỄ TỐT NGHIỆP" className="font-serif text-[clamp(2rem,7vw,3.75rem)] tracking-[0.1em] mb-12 md:mb-20 mt-8 md:mt-10 text-accent_green uppercase font-bold" />
                         
                         <div className="space-y-6 md:space-y-10 font-serif text-[clamp(1.125rem,4vw,1.5rem)] text-text_main w-full">
                             {[{ label: "Nhân vật chính ", value: siteConfig.name, isRed: true }, { label: "Ngành học", value: siteConfig.major, italic: true }, { label: "Thời gian", value: `${siteConfig.displayDate} \n ${siteConfig.time}`, isBlue: true }, { label: "Địa điểm", value: `${siteConfig.venue}\n${siteConfig.school}`, multi: true }].map((item, idx) => (
                                 <motion.div key={idx} initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 1 + idx * 0.2, duration: 0.8 }} className="flex flex-col sm:flex-row justify-between border-b border-black/5 pb-4 md:pb-6 group">
                                     <span className="text-accent_green text-[10px] md:text-sm uppercase tracking-[0.2em] font-sans mb-2 sm:mb-0 font-bold text-center sm:text-left shrink-0 sm:pr-4">{item.label}</span>
-                                    <span className={`text-center sm:text-right font-bold word-wrap-anywhere ${item.isRed ? 'text-accent_red tracking-wider text-[clamp(1.5rem,5vw,2.25rem)]' : ''} ${item.isBlue ? 'text-accent_blue whitespace-pre-line' : ''} ${item.italic ? 'italic' : ''} ${item.multi ? 'whitespace-pre-line leading-relaxed font-medium' : ''}`}>{item.value}</span>
+                                    <span className={`text-center sm:text-right font-bold ${item.isRed ? 'text-accent_red tracking-wider text-[clamp(1.5rem,5vw,2.25rem)]' : ''} ${item.isBlue ? 'text-accent_blue whitespace-pre-line' : ''} ${item.italic ? 'italic' : ''} ${item.multi ? 'whitespace-pre-line leading-relaxed font-medium' : ''}`}>{item.value}</span>
                                 </motion.div>
                             ))}
                         </div>
 
-                        {/* BẢN ĐỒ CUSTOM VẼ BẰNG CODE SVG */}
                         <motion.div initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 2.0, duration: 0.8 }} className="w-full mt-8 md:mt-10 rounded-xl md:rounded-2xl overflow-hidden shadow-lg border border-black/10 bg-white p-2 md:p-4 relative">
-                            {/* CSS cho đường đứt nét di chuyển */}
                             <style>{`@keyframes dash { to { stroke-dashoffset: -50; } }`}</style>
                             
                             <svg viewBox="0 0 600 400" className="w-full h-auto max-h-[400px] bg-[#FAF8F1] rounded-lg md:rounded-xl">
-                                {/* Các con đường (Roads) */}
-                                <path d="M 60 450 L 120 -50" stroke="#EBF1E6" strokeWidth="45" strokeLinecap="round" /> {/* Đường Nguyễn Lương Bằng */}
-                                <path d="M 80 350 L 650 150" stroke="#EBF1E6" strokeWidth="35" strokeLinecap="round" /> {/* Trục đường chính trong trường */}
-                                <path d="M 250 290 L 180 120" stroke="#EBF1E6" strokeWidth="25" strokeLinecap="round" /> {/* Đường rẽ vào bãi để xe */}
-                                <path d="M 400 235 L 550 400" stroke="#EBF1E6" strokeWidth="25" strokeLinecap="round" /> {/* Đường từ cổng phụ đi vào */}
+                                <path d="M 60 450 L 120 -50" stroke="#EBF1E6" strokeWidth="45" strokeLinecap="round" />
+                                <path d="M 80 350 L 650 150" stroke="#EBF1E6" strokeWidth="35" strokeLinecap="round" />
+                                <path d="M 250 290 L 180 120" stroke="#EBF1E6" strokeWidth="25" strokeLinecap="round" />
+                                <path d="M 400 235 L 550 400" stroke="#EBF1E6" strokeWidth="25" strokeLinecap="round" />
 
-                                {/* Tên đường */}
                                 <text x="75" y="250" fill="#718096" fontSize="12" fontWeight="600" transform="rotate(-75 75 250)">Nguyễn Lương Bằng</text>
 
-                                {/* Lộ trình đi bộ đứt nét (Từ bãi xe đi bộ sang khu F) */}
                                 <path d="M 200 120 Q 320 80 440 90" stroke="#F2A93B" strokeWidth="4" strokeDasharray="8 6" fill="none" style={{ animation: 'dash 3s linear infinite' }} />
 
-                                {/* Điểm 1: Cổng chính */}
                                 <g transform="translate(80, 350)">
                                     <circle cx="0" cy="0" r="14" fill="#E85D4E" />
                                     <circle cx="0" cy="0" r="5" fill="#fff" />
                                     <text x="22" y="5" fill="#4A5568" fontSize="16" fontWeight="bold">Cổng Chính "54 Nguyễn Lương Bằng"</text>
                                 </g>
 
-                                {/* Điểm 2: Cổng phụ */}
                                 <g transform="translate(470, 310)">
                                     <circle cx="0" cy="0" r="14" fill="#E85D4E" />
                                     <circle cx="0" cy="0" r="5" fill="#fff" />
@@ -481,14 +494,12 @@
                                     </text>
                                 </g>
 
-                                {/* Điểm 3: Bãi để xe */}
                                 <g transform="translate(180, 120)">
                                     <rect x="-18" y="-18" width="36" height="36" rx="8" fill="#5B7C99" />
                                     <text x="0" y="6" fill="#fff" fontSize="18" fontWeight="bold" textAnchor="middle">P</text>
                                     <text x="-25" y="-25" fill="#4A5568" fontSize="15" fontWeight="bold">Để xe, nhà xe khu B</text>
                                 </g>
 
-                                {/* Điểm 4: Nơi diễn ra (Khu F) */}
                                 <g transform="translate(460, 90)">
                                     <circle cx="0" cy="0" r="22" fill="#3AA76D" />
                                     <text x="0" y="6" fill="#fff" fontSize="18" textAnchor="middle">🎓</text>
@@ -514,7 +525,7 @@
             const isLong = text.length > 150 || text.split('\n').length > 4;
             return (
                 <div className="w-full">
-                    <p className={`font-sans text-[clamp(0.875rem,3vw,1rem)] text-text_main leading-relaxed whitespace-pre-line word-wrap-anywhere ${expanded ? '' : 'line-clamp-4'}`}>{text}</p>
+                    <p className={`font-sans text-[clamp(0.875rem,3vw,1rem)] text-text_main leading-relaxed whitespace-pre-line break-words ${expanded ? '' : 'line-clamp-4'}`}>{text}</p>
                     {isLong && ( <button onClick={() => setExpanded(!expanded)} className="text-accent_orange text-xs uppercase tracking-widest mt-3 hover:text-accent_red transition-colors font-bold">{expanded ? "Thu gọn" : "Xem thêm"}</button> )}
                 </div>
             );
@@ -574,7 +585,7 @@
                                             whileHover={{ y: -5, boxShadow: "0 15px 30px -10px rgba(0,0,0,0.1)" }} 
                                             className="break-inside-avoid bg-white p-6 md:p-8 rounded-2xl border border-accent_green/20 relative group transition-all duration-300 w-full"
                                         >
-                                            <h5 className="font-serif text-lg md:text-2xl text-accent_red uppercase tracking-wider mb-3 md:mb-4 font-bold word-wrap-anywhere">{wish.name}</h5>
+                                            <h5 className="font-serif text-lg md:text-2xl text-accent_red uppercase tracking-wider mb-3 md:mb-4 font-bold break-words">{wish.name}</h5>
                                             <ExpandableText text={wish.message} />
                                         </motion.div>
                                     ))}
@@ -667,7 +678,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    {submitError && ( <p className="text-red-500 text-sm text-center font-sans tracking-wide word-wrap-anywhere px-2">Có lỗi xảy ra khi gửi thông tin.<br/>Vui lòng thử lại sau ít phút.</p> )}
+                                    {submitError && ( <p className="text-red-500 text-sm text-center font-sans tracking-wide break-words px-2">Có lỗi xảy ra khi gửi thông tin.<br/>Vui lòng thử lại sau ít phút.</p> )}
                                     <motion.button disabled={isSubmitting} whileHover={!isSubmitting ? { scale: 1.02 } : {}} whileTap={!isSubmitting ? { scale: 0.98 } : {}} type="submit" className={`w-full py-4 md:py-5 bg-accent_red text-white rounded-full tracking-[0.2em] text-xs md:text-sm font-bold uppercase mt-6 md:mt-8 relative flex justify-center shadow-lg shadow-accent_red/30 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}>{isSubmitting ? 'ĐANG GỬI...' : 'GỬI XÁC NHẬN'}</motion.button>
                                 </motion.form>
                             )}
@@ -811,7 +822,7 @@
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-20 md:h-32 bg-gradient-to-b from-transparent to-accent_green/30"></div>
                             <CharReveal text={siteConfig.story.title.toUpperCase()} className="font-serif text-[clamp(1.8rem,5vw,3rem)] leading-tight mb-10 md:mb-16 text-accent_red tracking-[0.1em] font-bold" />
                             <div className="w-full max-w-2xl mx-auto space-y-8 md:space-y-12 px-2">
-                                {siteConfig.story.paragraphs.map((text, idx) => ( <LineReveal key={idx} text={text} delay={idx * 0.2} className="text-[clamp(1rem,3vw,1.5rem)] font-serif leading-relaxed text-text_main font-medium word-wrap-anywhere" /> ))}
+                                {siteConfig.story.paragraphs.map((text, idx) => ( <LineReveal key={idx} text={text} delay={idx * 0.2} className="text-[clamp(1rem,3vw,1.5rem)] font-serif leading-relaxed text-text_main font-medium break-words" /> ))}
                             </div>
                         </section>
 
@@ -839,7 +850,7 @@
                             <CharReveal text={siteConfig.thankYou.title.toUpperCase()} className="font-serif text-[clamp(2rem,6vw,3rem)] mb-8 md:mb-12 text-accent_red tracking-[0.1em] font-bold" />
                             <div className="w-full max-w-4xl mx-auto space-y-8 md:space-y-10 relative z-10 px-2">
                                 <motion.p initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 1.5, ease: "easeOut" }} className="text-[clamp(1.25rem,4vw,2.25rem)] font-serif italic text-accent_green leading-relaxed mb-10 md:mb-16 font-bold">"{siteConfig.thankYou.highlight}"</motion.p>
-                                {siteConfig.thankYou.paragraphs.map((text, idx) => ( <LineReveal key={idx} text={text} delay={idx * 0.2} className="text-[clamp(1rem,3vw,1.25rem)] font-serif text-text_main font-medium word-wrap-anywhere" /> ))}
+                                {siteConfig.thankYou.paragraphs.map((text, idx) => ( <LineReveal key={idx} text={text} delay={idx * 0.2} className="text-[clamp(1rem,3vw,1.25rem)] font-serif text-text_main font-medium break-words" /> ))}
                             </div>
                         </section>
 
